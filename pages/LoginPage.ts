@@ -15,7 +15,7 @@ export class LoginPage {
 
     async navigate() {
         // L'URL est maintenant définie dans le fichier .env
-        await this.page.goto(process.env['BASE_URL']);
+        await this.page.goto(process.env['BASE_URL'] || '');
     }
 
     async login(username: string, password: string) {
