@@ -1,7 +1,7 @@
 import { test as base } from "playwright-bdd";
 import { createBdd } from "playwright-bdd";
-import { LoginPage } from "../pages/LoginPage";
-import { HomePage } from "../pages/HomePage";
+import { LoginPage } from "../pages/login.page";
+import { HomePage } from "../pages/home.page";
 
 // Ré-export centralisé des fonctions allure-js-commons
 export {
