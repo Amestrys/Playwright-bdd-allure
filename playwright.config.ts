@@ -1,11 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig, cucumberReporter } from 'playwright-bdd';
-import dotenv from 'dotenv';
-import path from 'path';
-
-// Charge le fichier .env selon la variable ENV (défaut: local)
-const env = process.env['ENV'] || 'local';
-dotenv.config({ path: path.resolve(__dirname, `.env.${env}`) });
+import { BASE_URL } from './config/env';
 
 const testDir = defineBddConfig({
   features: 'features/**/*.feature',
@@ -26,7 +21,7 @@ export default defineConfig({
     cucumberReporter('html', { outputFile: 'cucumber-report/report.html' })
   ],
   use: {
-    baseURL: process.env['BASE_URL'],
+    baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

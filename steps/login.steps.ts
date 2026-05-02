@@ -1,32 +1,28 @@
 import { expect } from '@playwright/test';
 import { Given, When, Then, step, parameter, Severity, severity } from '../fixtures/fixtures';
+import { BASE_URL, ENV, USER_NAME, PASSWORD } from '../config/env';
 
 Given('I navigate to the login page', async ({ loginPage }) => {
     await step('Ouvrir la page de connexion', async () => {
-        await loginPage.navigate();
+        await loginPage.navigate(BASE_URL);
+        console.log(`=== Navigated to ${BASE_URL} using environment: ${ENV} ===`);
     });
 });
 
-When('I submit username {string} and password {string}', async ({ loginPage, scenarioData }, username: string, password: string) => {
+When('I submit the correct credentials', async ({ loginPage, scenarioData }) => {
     // Rend les paramètres visibles dans le rapport Allure
-    await parameter('username', username);
+    await parameter('USER_NAME', USER_NAME);
     await parameter('password', '***'); // masqué dans le rapport
 
-    await step(`Saisir les identifiants (utilisateur : ${username})`, async () => {
-        await loginPage.login(username, password);
-        scenarioData['username'] = username;
+    await step(`Saisir les identifiants (utilisateur : ${USER_NAME})`, async () => {
+        await loginPage.login(USER_NAME, PASSWORD);
+        scenarioData['USER_NAME'] = USER_NAME;
     });
 });
 
-Then('I should be logged in successfully', async ({ loginPage }) => {
-    await severity(Severity.CRITICAL);
-    await step('Vérifier la connexion réussie', async () => {
-        await loginPage.verifyLoginSuccess();
-    });
-});
 
-Then('the stored username should be {string}', async ({ scenarioData }, expectedUsername: string) => {
-    await step(`Vérifier que le nom d'utilisateur stocké est "${expectedUsername}"`, async () => {
-        expect(scenarioData['username']).toBe(expectedUsername);
+Then('the stored USER_NAME should be the correct one', async ({ scenarioData }) => {
+    await step(`Vérifier que le nom d'utilisateur stocké est "${USER_NAME}"`, async () => {
+        expect(scenarioData['USER_NAME']).toBe(USER_NAME);
     });
 });

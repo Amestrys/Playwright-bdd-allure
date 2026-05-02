@@ -14,6 +14,6 @@ Feature: User Authentication
   @allure.label.tag:regression
   Scenario: Successful login with valid credentials
     Given I navigate to the login page
-    When I submit username "tomsmith" and password "SuperSecretPassword!"
+    When I submit the correct credentials
     Then I should be logged in successfully
-    And the stored username should be "tomsmith"
+    And the stored USER_NAME should be the correct one

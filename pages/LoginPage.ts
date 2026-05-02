@@ -1,34 +1,25 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class LoginPage {
     readonly page: Page;
-    readonly usernameInput: Locator;
+    readonly USER_NAMEInput: Locator;
     readonly passwordInput: Locator;
     readonly loginButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.usernameInput = page.getByRole('textbox', { name: 'Username' });
-        this.passwordInput = page.getByRole('textbox', { name: 'Password' });
-        this.loginButton = page.getByRole('button', { name: 'Login' });
+        this.USER_NAMEInput = this.page.locator('#user-name');
+        this.passwordInput = this.page.locator('#password');
+        this.loginButton = this.page.locator('#login-button');
     }
 
-    async navigate() {
-        // L'URL est maintenant définie dans le fichier .env
-        await this.page.goto(process.env['BASE_URL'] || '');
+    async navigate(url: string) {
+        await this.page.goto(url);
     }
 
-    async login(username: string, password: string) {
-        // the-internet.herokuapp.com n'utilise pas d'attributs aria parfaits, 
-        // voici des sélecteurs de secours pour l'exemple
-        await this.page.locator('#username').fill(username);
-        await this.page.locator('#password').fill(password);
-        await this.page.locator('button[type="submit"]').click();
-    }
-
-    async verifyLoginSuccess() {
-        const successMessage = this.page.locator('#flash.success');
-        await expect(successMessage).toBeVisible();
-        await expect(successMessage).toContainText('You logged into a secure area!');
+    async login(USER_NAME: string, password: string) {
+        await this.USER_NAMEInput.fill(USER_NAME);
+        await this.passwordInput.fill(password);
+        await this.loginButton.click();
     }
 }

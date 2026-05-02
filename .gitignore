@@ -7,12 +7,12 @@ node_modules/
 /playwright/.cache/
 /playwright/.auth/
 
-# Environnements (ne pas committer les credentials)
-.env.local
-.env.recette
-.env.prod
+# Environnements (ne pas committer les credentials) mais gardé un exemple versionné
+!env/.env.local
+!env/.env.recette
+!env/.env.prod
 # Conserver un exemple versionné
-!.env.example
+!env/.env.example
 
 
 .features-gen/
