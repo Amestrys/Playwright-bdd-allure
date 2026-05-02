@@ -10,12 +10,13 @@
     "test:prod": "npx bddgen && cross-env ENV=prod npx playwright test",
     "report:generate": "npx allure generate ./allure-results --clean",
     "report:open": "npx allure open ./allure-report",
-    "test:full": "npm run test && npm run report:generate && npm run report:open"
+    "report:clean": "npx rimraf allure-results allure-report cucumber-report playwright-report test-results .features-gen",
+    "test:full": "npm run report:clean && npm run test && npm run report:generate && npm run report:open"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.6.0",
     "allure-commandline": "^2.38.1",
@@ -23,6 +24,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "playwright-bdd": "^8.5.0",
+    "rimraf": "^6.1.3",
     "typescript": "^6.0.3"
   }
 }
