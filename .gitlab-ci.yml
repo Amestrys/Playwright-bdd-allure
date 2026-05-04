@@ -1,0 +1,108 @@
+image: mcr.microsoft.com/playwright:v1.52.0-noble
+
+stages:
+  - test
+  - report
+  - publish
+
+variables:
+  # Environnement cible (local | recette | prod). Peut être surchargé via CI/CD variables GitLab.
+  ENV: "recette"
+  # Désactive la télémétrie Playwright
+  PLAYWRIGHT_TELEMETRY_DISABLED: "1"
+  # Dossiers d'artefacts
+  ALLURE_RESULTS_DIR: allure-results
+  PLAYWRIGHT_REPORT_DIR: playwright-report
+  CUCUMBER_REPORT_DIR: cucumber-report
+
+.test_base:
+  stage: test
+  before_script:
+    - npm ci
+    # Génère les fichiers de step glue BDD
+    - npx bddgen
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - $ALLURE_RESULTS_DIR/
+      - $PLAYWRIGHT_REPORT_DIR/
+      - $CUCUMBER_REPORT_DIR/
+      - test-results/
+    reports:
+      junit: cucumber-report/report.json
+
+# ─────────────────────────────────────────────
+# Job : tous les navigateurs (chromium, firefox, webkit)
+# ─────────────────────────────────────────────
+test:all-browsers:
+  extends: .test_base
+  script:
+    - cross-env ENV=$ENV npx playwright test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# ─────────────────────────────────────────────
+# Jobs par navigateur (utiles pour déboguer un browser spécifique)
+# ─────────────────────────────────────────────
+test:chromium:
+  extends: .test_base
+  script:
+    - cross-env ENV=$ENV npx playwright test --project=chromium
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"       # déclenché manuellement
+    - when: never
+
+test:firefox:
+  extends: .test_base
+  script:
+    - cross-env ENV=$ENV npx playwright test --project=firefox
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - when: never
+
+test:webkit:
+  extends: .test_base
+  script:
+    - cross-env ENV=$ENV npx playwright test --project=webkit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - when: never
+
+# ─────────────────────────────────────────────
+# Génération du rapport Allure (après les tests)
+# ─────────────────────────────────────────────
+report:allure:
+  stage: report
+  image: frankescobar/allure-docker-service:latest
+  script:
+    - allure generate $ALLURE_RESULTS_DIR --clean -o allure-report
+  dependencies:
+    - test:all-browsers
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - allure-report/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# ─────────────────────────────────────────────
+# Publication du rapport via GitLab Pages
+# URL : https://<group>.gitlab.io/<project>/
+# ─────────────────────────────────────────────
+pages:
+  stage: publish
+  dependencies:
+    - report:allure
+  script:
+    - mkdir -p public
+    - cp -r allure-report/* public/
+  artifacts:
+    paths:
+      - public/
+    expire_in: 30 days
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
