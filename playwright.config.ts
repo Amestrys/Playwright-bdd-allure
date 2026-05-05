@@ -16,7 +16,14 @@ export default defineConfig({
   fullyParallel: true,
   reporter: [
     ['html'], // Rapport par défaut de Playwright (optionnel)
-    ['allure-playwright'], // Rapport Allure
+    ['allure-playwright', {
+      environmentInfo: {
+        'Node Version': process.version,
+        'Environment': process.env.ENV || 'local',
+        'Base URL': BASE_URL,
+        'OS': process.platform,
+      },
+    }], // Rapport Allure
     cucumberReporter('json', { outputFile: 'cucumber-report/report.json' }),
     cucumberReporter('html', { outputFile: 'cucumber-report/report.html' })
   ],

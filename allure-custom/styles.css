@@ -1,0 +1,29 @@
+/* ── Sidebar background ── */
+.side-nav {
+  background-color: #1565C0 !important;
+}
+
+/* ── Navigation links ── */
+.side-nav__item a,
+.side-nav__item span {
+  color: #E3F2FD !important;
+}
+
+.side-nav__item a:hover,
+.side-nav__item.is-active a {
+  background-color: #0D47A1 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── Logo custom (top-left) ── */
+.side-nav__brand {
+  background: url('logo.PNG') no-repeat left center !important;
+  background-size: contain !important;
+  margin-left: 10px;
+  height: 50px !important;
+}
+
+/* Cache le texte "Allure" sous le logo si présent */
+.side-nav__brand-text {
+  display: none !important;
+}

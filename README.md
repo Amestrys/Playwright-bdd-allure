@@ -170,6 +170,95 @@ npm run test:full
 
 ---
 
+## Personnalisation du rapport Allure
+
+La personnalisation repose sur le **plugin `custom-logo-plugin`** intégré à `allure-commandline`.  
+Les fichiers sources sont versionnés dans `allure-custom/` et copiés automatiquement dans `node_modules/` à chaque `npm install` via le script `postinstall`.
+
+### Fichiers impliqués
+
+```
+allure-custom/
+├── styles.css          # Couleurs de la sidebar et style du logo
+└── custom-logo.svg     # Logo affiché en haut à gauche
+allure.yml              # Activation du custom-logo-plugin
+scripts/
+└── patch-allure.js     # Script de copie vers node_modules
+```
+
+### Changer la couleur de la sidebar
+
+Éditez `allure-custom/styles.css` et modifiez les valeurs hexadécimales :
+
+```css
+.side-nav {
+  background-color: #1565C0 !important; /* ← couleur principale */
+}
+
+.side-nav__item a:hover,
+.side-nav__item.is-active a {
+  background-color: #0D47A1 !important; /* ← couleur au survol / actif */
+}
+```
+
+Appliquez ensuite les changements :
+
+```bash
+node scripts/patch-allure.js
+```
+
+### Changer le logo
+
+**Option 1 — Logo SVG** : remplacez le contenu de `allure-custom/custom-logo.svg` par votre propre SVG.
+
+**Option 2 — Logo PNG / WebP** : copiez votre image dans `allure-custom/`, puis dans `styles.css` remplacez :
+
+```css
+background: url('custom-logo.svg') no-repeat left center !important;
+```
+par :
+```css
+background: url('votre-logo.png') no-repeat left center !important;
+```
+
+> Ajoutez également le fichier image à la liste `FILES` dans `scripts/patch-allure.js` pour qu'il soit copié automatiquement.
+
+Appliquez les changements :
+
+```bash
+node scripts/patch-allure.js
+```
+
+### Modifier les informations d'environnement
+
+Les informations affichées dans la rubrique **Environment** du rapport sont définies dans `playwright.config.ts` :
+
+```ts
+['allure-playwright', {
+  environmentInfo: {
+    'Node Version': process.version,
+    'Environment': process.env.ENV || 'local',
+    'Base URL': BASE_URL,
+    'OS': process.platform,
+    // Ajoutez vos propres clés/valeurs ici
+  },
+}]
+```
+
+Ces valeurs sont injectées dans `allure-results/` à chaque exécution de tests.
+
+### Fonctionnement du script `postinstall`
+
+À chaque `npm install`, le script `scripts/patch-allure.js` s'exécute automatiquement et copie les fichiers de `allure-custom/` vers :
+
+```
+node_modules/allure-commandline/dist/plugins/custom-logo-plugin/static/
+```
+
+Ainsi, la personnalisation est **préservée même après une réinstallation des dépendances**.
+
+---
+
 ## Structure du projet
 
 ```
@@ -193,9 +282,15 @@ PlaywrightBDD/
 ├── steps/
 │   ├── home.steps.ts       # Step definitions - accueil
 │   └── login.steps.ts      # Step definitions - connexion
+├── allure-custom/
+│   ├── styles.css          # Couleurs sidebar Allure (source)
+│   └── custom-logo.svg     # Logo Allure custom (source)
+├── scripts/
+│   └── patch-allure.js     # Copie allure-custom/ → node_modules/ après npm install
+├── allure.yml              # Configuration Allure (active custom-logo-plugin)
 ├── playwright.config.ts    # Configuration Playwright
 ├── package.json
-└── tsconfig.js
+└── tsconfig.json
 ```
 
 ---
@@ -210,4 +305,5 @@ PlaywrightBDD/
 | `npm run test:prod` | Exécute les tests sur l'environnement `prod` |
 | `npm run report:generate` | Génère le rapport Allure depuis `allure-results/` |
 | `npm run report:open` | Ouvre le rapport Allure dans le navigateur |
-| `npm run test:full` | Exécute les tests, génère et ouvre le rapport Allure |
+| `npm run report:clean` | Supprime tous les résultats et rapports générés |
+| `npm run test:full` | Nettoie, exécute les tests, génère et ouvre le rapport Allure |

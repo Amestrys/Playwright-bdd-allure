@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "node scripts/patch-allure.js",
     "test": "npx bddgen && npx playwright test",
     "test:local": "npx bddgen && cross-env ENV=local npx playwright test",
     "test:recette": "npx bddgen && cross-env ENV=recette npx playwright test",
     "test:prod": "npx bddgen && cross-env ENV=prod npx playwright test",
-    "report:generate": "npx allure generate ./allure-results --clean",
+    "report:generate": "npx allure generate --config allure.yml ./allure-results --clean",
     "report:open": "npx allure open ./allure-report",
     "report:clean": "npx rimraf allure-results allure-report cucumber-report playwright-report test-results .features-gen",
     "test:full": "npm run report:clean && npm run test && npm run report:generate && npm run report:open"
